@@ -1,15 +1,12 @@
-from crewai import Crew
-from agents import (
-    data_formatter, query_executor, insight_generator, summarization_agent,
-    query_parser, data_retrieval, explanation_agent, recommendation_agent
-)
-from tasks import all_tasks
+from crewai import Crew, Process
+from agents import metadata_agent, result_analysis_agent, reporting_agent
+from tasks import metadata_task, result_analysis_task, reporting_task
 
-# Define Crew
 crew = Crew(
-    agents=[
-        data_formatter, query_executor, insight_generator, summarization_agent,
-        query_parser, data_retrieval, explanation_agent, recommendation_agent
-    ],
-    tasks=all_tasks
+    agents=[metadata_agent, result_analysis_agent, reporting_agent],
+    tasks=[metadata_task, result_analysis_task, reporting_task],
+    process=Process.sequential, 
+    allow_delegation=True ,
+    # memory=True,
+    # verbose=True
 )

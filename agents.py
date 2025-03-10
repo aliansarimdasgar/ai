@@ -1,62 +1,73 @@
-from crewai import Agent
-from langchain_google_genai import ChatGoogleGenerativeAI
+from crewai import Agent, LLM
+import os
+from tools import csv_metadata_reader, csv_query_runner
+from dotenv import load_dotenv
 
-# Load LLM
-llm = ChatGoogleGenerativeAI(model="gemini-pro")
+load_dotenv()
 
-# Define Agents
-data_formatter = Agent(
-    role="Data Formatting Agent",
-    goal="Fetch raw results and convert them into structured format",
-    backstory="A data expert that prepares reconciliation data for analysis.",
-    llm=llm
+# Get API Key
+api_key = os.getenv("MISTRAL_API_KEY")
+if not api_key:
+    raise ValueError("API Key not found! Make sure your .env file is set up correctly.")
+
+# Define LLM Model
+llm = LLM(
+    model="mistral/mistral-small-latest",
+    temperature=0.5,
+    api_key=api_key
 )
 
-query_executor = Agent(
-    role="Query Execution Agent",
-    goal="Run predefined or custom queries on the data to detect patterns",
-    backstory="An expert in running and optimizing queries to analyze results.",
-    llm=llm
+
+metadata_agent = Agent(
+    role="CSV Metadata Extraction Specialist",
+    goal="Extract detailed metadata from CSV files, including column names, data types, row counts, and file structure.",
+    backstory=(
+        "A highly skilled data extraction specialist focused exclusively on CSV files. "
+        "This agent ensures accurate and efficient metadata retrieval, identifying key attributes "
+        "such as column names,primary keys, data types, missing values, and file statistics."
+    ),
+    llm=llm,
+    tools=[csv_metadata_reader],  
+    verbose=True
+    # allow_delegation=True 
 )
 
-insight_generator = Agent(
-    role="Insight Generation Agent",
-    goal="Analyze discrepancies in data using LLMs and generate insights",
-    backstory="A smart AI that identifies hidden patterns and discrepancies.",
-    llm=llm
+
+# result_analysis_agent = Agent(
+#     role="Result Analysis Agent",
+#     goal="Analyze the data from the result CSV files and run predefined queries.",
+#     backstory="A seasoned data analyst with expertise in extracting insights from structured datasets."
+#               "This agent specializes in running queries on CSV files, identifying patterns, trends, and anomalies, "
+#               "and providing actionable insights for decision-making. With strong analytical skills and an eye for "
+#               "detail, the agent ensures that all relevant data points are examined efficiently.",
+#     llm=llm,
+#     tools=[csv_query_runner],
+#     allow_delegation=True
+# )
+
+result_analysis_agent = Agent(
+    role="CSV Data Analysis & Pattern Recognition Specialist",
+    goal="Extract data from CSV files, identify patterns, trends, and anomalies, and provide structured insights.",
+    backstory=(
+        "An expert data analyst specializing in extracting structured insights from CSV files. "
+        "This agent efficiently processes large datasets, detects anomalies, finds hidden patterns, "
+        "and ensures key trends are surfaced for better decision-making."
+    ),
+    llm=llm,
+    tools=[csv_query_runner], 
+    verbose=True
+    # allow_delegation=True 
 )
 
-summarization_agent = Agent(
-    role="Summarization Agent",
-    goal="Convert findings into human-readable insights",
-    backstory="A language expert that provides summaries for decision-making.",
-    llm=llm
+reporting_agent = Agent(
+    role="Structured Reporting Agent",
+    goal="Generate concise, structured, and easy-to-read reports from CSV insights. Generate an html like report if asked.",
+    backstory=(
+        "An expert in summarizing data efficiently. This agent provides clear, structured reports "
+        "with only the most relevant insights, ensuring easy understanding for decision-makers. It is expert in abstracting response from the python dictionary,json, dataframe."
+    ),
+    llm=llm,
+    verbose=True,
+    allow_delegation=False 
 )
 
-query_parser = Agent(
-    role="Query Parsing Agent",
-    goal="Understand user intent and reformulate questions as needed",
-    backstory="A chatbot assistant that interprets user queries effectively.",
-    llm=llm
-)
-
-data_retrieval = Agent(
-    role="Data Retrieval Agent",
-    goal="Search and retrieve relevant records from the structured dataset",
-    backstory="An AI assistant that finds the right data efficiently.",
-    llm=llm
-)
-
-explanation_agent = Agent(
-    role="Explanation Agent",
-    goal="Provide a natural language response based on the retrieved data",
-    backstory="A helpful AI that explains data findings clearly.",
-    llm=llm
-)
-
-recommendation_agent = Agent(
-    role="Recommendation Agent",
-    goal="Suggest corrective actions based on the resolutions",
-    backstory="An AI that helps businesses improve based on the analysis.",
-    llm=llm
-)
