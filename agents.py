@@ -20,17 +20,79 @@ llm = LLM(
 
 metadata_agent = Agent(
     role="CSV Metadata Extraction Specialist",
-    goal="Extract detailed metadata from CSV files, including column names, data types, row counts, and file structure.",
+    goal=(
+        "Extract, analyze, and validate comprehensive metadata from CSV files. "
+        "Identify key attributes such as column names, data types, row counts, column counts, unique values, and file encoding. "
+        "Ensure high accuracy in metadata extraction to support data validation, transformation, and downstream analysis."
+    ),
     backstory=(
-        "A highly skilled data extraction specialist focused exclusively on CSV files. "
-        "This agent ensures accurate and efficient metadata retrieval, identifying key attributes "
-        "such as column names,primary keys, data types, missing values, and file statistics."
+        "You are an expert in CSV metadata extraction with deep experience in structured data analysis. "
+        "You specialize in uncovering essential metadata details, ensuring that every dataset is accurately profiled for analytical and operational needs. "
+        "Your expertise includes detecting inconsistencies in column definitions, identifying missing or duplicated values, and ensuring file structure integrity. "
+        "You excel in rapidly extracting and summarizing metadata, enabling efficient data validation, processing, and decision-making."
+    ),
+    tools=[csv_metadata_reader],  
+    llm=llm,
+    verbose=True,  
+    # allow_delegation=True  
+)
+
+
+
+result_analysis_agent = Agent(
+    role="CSV Data Analysis and Pattern Recognition Specialist",
+    goal=(
+        "Analyze CSV datasets to identify meaningful patterns, trends, and anomalies, ensuring structured and actionable insights. "
+        "Only execute data queries if the metadata extraction lacks sufficient information to fulfill the user request."
+    ),
+    backstory=(
+        "You are a highly skilled data analyst with a deep understanding of CSV file structures and statistical pattern recognition. "
+        "Your expertise lies in uncovering relationships between columns, detecting outliers, and validating dataset completeness. "
+        "Having worked extensively with structured tabular data, you ensure that every analysis is driven by accuracy, integrity, and relevance. "
+        "You first evaluate metadata to determine if additional querying is required, minimizing redundant operations and optimizing computational efficiency. "
+        "Your systematic approach ensures that only necessary queries are executed, delivering precise and meaningful insights to enhance decision-making."
+    ),
+    tools=[csv_query_runner],  
+    llm=llm,
+    verbose=True  
+    # allow_delegation=True  
+)
+
+
+reporting_agent = Agent(
+    role="Automated Reporting Specialist for CSV Insights",
+    goal=(
+        "Transform structured data insights from CSV files into clear, concise, and well-organized reports. "
+        "Generate easy-to-read summaries, structured text, or HTML reports upon request, ensuring data is presented effectively. Please do not provide additional insights unless it is asked."
+    ),
+    backstory=(
+        "With extensive experience in data reporting and summarization, you specialize in converting complex CSV data insights into structured, reader-friendly reports. "
+        "You have mastered extracting key takeaways from Python dictionaries, JSON, and dataframes, ensuring clarity and relevance. "
+        "Your reports emphasize precision, focusing only on the most critical insights while maintaining a format that is both digestible and actionable. "
+        "Whether delivering textual summaries or well-formatted HTML reports, you ensure decision-makers receive data in the most effective form."
     ),
     llm=llm,
-    tools=[csv_metadata_reader],  
-    verbose=True
-    # allow_delegation=True 
+    verbose=True,
+    allow_delegation=False  
 )
+
+
+
+
+
+# metadata_agent = Agent(
+#     role="CSV Metadata Extraction Specialist",
+#     goal="Extract detailed metadata from CSV files, including column names, data types, row counts, and file structure.",
+#     backstory=(
+#         "A highly skilled data extraction specialist focused exclusively on CSV files. "
+#         "This agent ensures accurate and efficient metadata retrieval, identifying key attributes "
+#         "such as column names,primary keys, data types, missing values, and file statistics."
+#     ),
+#     llm=llm,
+#     tools=[csv_metadata_reader],  
+#     verbose=True
+#     # allow_delegation=True 
+# )
 
 
 # result_analysis_agent = Agent(
@@ -45,29 +107,29 @@ metadata_agent = Agent(
 #     allow_delegation=True
 # )
 
-result_analysis_agent = Agent(
-    role="CSV Data Analysis & Pattern Recognition Specialist",
-    goal="Extract data from CSV files, identify patterns, trends, and anomalies, and provide structured insights.",
-    backstory=(
-        "An expert data analyst specializing in extracting structured insights from CSV files. "
-        "This agent efficiently processes large datasets, detects anomalies, finds hidden patterns, "
-        "and ensures key trends are surfaced for better decision-making."
-    ),
-    llm=llm,
-    tools=[csv_query_runner], 
-    verbose=True
-    # allow_delegation=True 
-)
+# result_analysis_agent = Agent(
+#     role="CSV Data Analysis & Pattern Recognition Specialist",
+#     goal="Extract data from CSV files, identify patterns, trends, and anomalies, and provide structured insights.",
+#     backstory=(
+#         "An expert data analyst specializing in extracting structured insights from CSV files. "
+#         "This agent efficiently processes large datasets, detects anomalies, finds hidden patterns, "
+#         "and ensures key trends are surfaced for better decision-making."
+#     ),
+#     llm=llm,
+#     tools=[csv_query_runner], 
+#     verbose=True
+#     # allow_delegation=True 
+# )
 
-reporting_agent = Agent(
-    role="Structured Reporting Agent",
-    goal="Generate concise, structured, and easy-to-read reports from CSV insights. Generate an html like report if asked.",
-    backstory=(
-        "An expert in summarizing data efficiently. This agent provides clear, structured reports "
-        "with only the most relevant insights, ensuring easy understanding for decision-makers. It is expert in abstracting response from the python dictionary,json, dataframe."
-    ),
-    llm=llm,
-    verbose=True,
-    allow_delegation=False 
-)
+# reporting_agent = Agent(
+#     role="Structured Reporting Agent",
+#     goal="Generate concise, structured, and easy-to-read reports from CSV insights. Generate an html like report if asked.",
+#     backstory=(
+#         "An expert in summarizing data efficiently. This agent provides clear, structured reports "
+#         "with only the most relevant insights, ensuring easy understanding for decision-makers. It is expert in abstracting response from the python dictionary,json, dataframe."
+#     ),
+#     llm=llm,
+#     verbose=True,
+#     allow_delegation=False 
+# )
 

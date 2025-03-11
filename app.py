@@ -1,7 +1,7 @@
 import streamlit as st
 from crew import crew
 # Streamlit UI
-st.title("Match Grid Result Query System")
+st.title("Match Grid Query System")
 query = st.text_area("Enter your query:")
 
 if st.button("Search"):
